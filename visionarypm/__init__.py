@@ -32,6 +32,8 @@ def generate(master_password, keyword, cost=2048, oLen=32):
     return codecs.encode(hashed, 'hex').decode('utf-8')[0:oLen]
 
 
+# Output coloring functions
+
 def err(text):
     return '%s%s%s' % (Fore.RED, text, Fore.RESET)
 
@@ -53,6 +55,10 @@ def safe_input(string):
 
 
 def get_defaults():
+    """
+    Queries the user for their preferred settings and returns a dictionary containing
+    those settings.
+    """
     print('Enter your preferred settings: (leave blank to accept defaults)\n')
     cost = safe_input('CPU/memory cost parameter [default=2048]: ')
     if cost:
@@ -83,6 +89,9 @@ def get_defaults():
 
 
 def getPath():
+    """
+    Get path of config file.
+    """
     try:
         return '%s/visionarypm.conf' % os.path.dirname(os.path.abspath(__file__))
     except:
@@ -91,6 +100,9 @@ def getPath():
 
 
 def getConfig():
+    """
+    Try to load a configuration from the disk or else get a new one.
+    """
     try:
         with open(path) as f:
             config = json.loads(f.read().strip())
