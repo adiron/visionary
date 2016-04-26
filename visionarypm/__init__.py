@@ -5,6 +5,7 @@ import codecs
 
 from colorama import init, Fore, Style
 from getpass import getpass
+from sys import argv
 import pyscrypt
 import json
 import os
@@ -129,17 +130,18 @@ params = {}
 path = getPath()
 
 
-def interactive(first_run=True):
-    if first_run == True:
-        print("""%s%s
-                        _     _
-                 /\   /(_)___(_) ___  _ __   __ _ _ __ _   _
-                 \ \ / / / __| |/ _ \| '_ \ / _` | '__| | | |
-                  \ V /| \__ \ | (_) | | | | (_| | |  | |_| |
-                   \_/ |_|___/_|\___/|_| |_|\__,_|_|   \__, |
-                                       Password Manager|___/\n
-        """ % (Fore.WHITE, Style.BRIGHT)) # Set global default colours.
-        print(settings('  Please report any issues at https://github.com/libeclipse/visionary/issues\n'))
+def session(first_run=True, keyword=None):
+    if first_run or keyword:
+        if first_run:
+            print("""%s%s
+                            _     _
+                     /\   /(_)___(_) ___  _ __   __ _ _ __ _   _
+                     \ \ / / / __| |/ _ \| '_ \ / _` | '__| | | |
+                      \ V /| \__ \ | (_) | | | | (_| | |  | |_| |
+                       \_/ |_|___/_|\___/|_| |_|\__,_|_|   \__, |
+                                           Password Manager|___/\n
+            """ % (Fore.WHITE, Style.BRIGHT)) # Set global default colours.
+            print(settings('  Please report any issues at https://github.com/libeclipse/visionary/issues\n'))
         global params
         params, stat = getConfig()
         if stat == 0:
@@ -154,26 +156,38 @@ def interactive(first_run=True):
         master_password_confirm = getpass('Confirm master password: ')
     if len(master_password) >= 8:
         print() #line break for formatting
-        while True:
-            keyword = safe_input('Keyword: ')
-            if keyword:
-                print('Your password: %s\n' % (password(generate(master_password,
-                                                                 keyword,
-                                                                 params['cost'],
-                                                                 params['oLen']))))
-            else:
-                print(err('\nExiting...'))
-                raise SystemExit
+        if not keyword:
+            # If the keyword was not specified.
+            while True:
+                keyword = safe_input('Keyword: ')  # Get the keyword from the terminal.
+                if keyword:
+                    print('Your password: %s\n' % (password(generate(master_password,
+                                                                     keyword,
+                                                                     params['cost'],
+                                                                     params['oLen']))))
+                else:
+                    print(err('\nExiting...'))
+                    raise SystemExit
+        else:
+            # If the keyword was specified
+            print('Your password: %s\n' % (password(generate(master_password,
+                                                             keyword,
+                                                             params['cost'],
+                                                             params['oLen']))))
+
     else:
         print(err('Password must be at least 8 characters.\n'))
-        interactive(False)
+        session(False)
 
 
 def main():
-    try:
-        interactive()
-    except KeyboardInterrupt:
-        print(err('\n\nKeyboard Interrupt'))
+    if len(argv) > 1:
+        session(first_run=False, keyword=argv[1])
+    else:
+        try:
+            session()
+        except KeyboardInterrupt:
+            print(err('\n\nKeyboard Interrupt'))
 
 
 if __name__ == "__main__":
