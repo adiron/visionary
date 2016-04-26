@@ -1,0 +1,2 @@
+colorama==0.3.7
+pyscrypt==1.6.2
